@@ -16,6 +16,24 @@ function sanitizeIdentifier(name: string): string {
   return JSON.stringify(name);
 }
 
+function toSingular(key: string): string {
+  if (key.endsWith("ies")) {
+    return key.slice(0, -3) + "y";
+  }
+  if (
+    key.endsWith("sses") ||
+    key.endsWith("shes") ||
+    key.endsWith("ches") ||
+    key.endsWith("xes")
+  ) {
+    return key.slice(0, -2);
+  }
+  if (key.endsWith("s") && !key.endsWith("ss")) {
+    return key.slice(0, -1);
+  }
+  return `${key}Item`;
+}
+
 function inferRootName(data: unknown, fallback = "WebhookPayload"): string {
   if (typeof data === "object" && data !== null) {
     const obj = data as Record<string, unknown>;
@@ -87,9 +105,7 @@ export function generateTypeScript(
       if (val.length === 0) return "unknown[]";
       // Sample first item or unify items
       const sample = val[0];
-      const singularKey = keyContext.endsWith("s")
-        ? keyContext.slice(0, -1)
-        : `${keyContext}Item`;
+      const singularKey = toSingular(keyContext);
       const elemType = resolveType(sample, singularKey);
       return `${elemType}[]`;
     }
@@ -129,7 +145,10 @@ export function generateTypeScript(
   const rootInterface = `export interface ${rootName} {\n${rootFields.join("\n")}\n}`;
 
   // Put root at top, followed by sub-interfaces
-  const allInterfaces = [rootInterface, ...collectedInterfaces.reverse()];
+  const allInterfaces = [
+    rootInterface,
+    ...collectedInterfaces.map((i) => i.body).reverse(),
+  ];
   return allInterfaces.join("\n\n");
 }
 
@@ -181,9 +200,7 @@ export function generateZodSchema(
 
     if (Array.isArray(val)) {
       if (val.length === 0) return "z.array(z.unknown())";
-      const singularKey = keyContext.endsWith("s")
-        ? keyContext.slice(0, -1)
-        : `${keyContext}Item`;
+      const singularKey = toSingular(keyContext);
       const elem = resolveZod(val[0], singularKey);
       return `z.array(${elem})`;
     }
