@@ -206,6 +206,7 @@ export default function Home() {
           receiverUrl={receiverUrl}
           eventCount={events.length}
           onSendSample={handleSendSample}
+          onOpenCurlModal={() => setIsCurlModalOpen(true)}
           isSendingSample={isSendingSample}
         />
 
@@ -222,6 +223,8 @@ export default function Home() {
         <PayloadInspector
           event={selectedEvent}
           receiverUrl={receiverUrl}
+          onSendSample={handleSendSample}
+          isSendingSample={isSendingSample}
         />
       </main>
 
