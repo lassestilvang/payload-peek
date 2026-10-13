@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Payload Peek
 
-## Getting Started
+> **Catch webhooks. Inspect payloads. Generate TypeScript.**  
+> A live webhook inbox that turns real HTTP requests into strongly-typed code and Zod schemas. No installation, no account, no setup hassle.
 
-First, run the development server:
+Built for the **Google Cloud Run Takeover & Product Hunt Hackathon**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ⚡ The 30-Second Demo
+
+1. **Get an inbox instantly**: Open the app to get a unique webhook URL without creating an account.
+2. **Send a request**: Click **"Send Sample Webhook"** (Stripe, GitHub, Shopify, Clerk) or send a real HTTP payload using `curl`.
+3. **Generate code**: Click **TypeScript** or **Zod** to inspect generated interfaces, view full headers, and copy code straight into your application.
+
+---
+
+## 🏗️ Architecture
+
+```
+┌────────────────────────────────────────────────────────┐
+│                  Next.js App Router                    │
+│      Tailwind CSS · Responsive 3-Pane Interface        │
+│    TypeScript & Zod Code Generator · Live Poller       │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│                   Google Cloud Run                     │
+│               Single Container Service                 │
+│      Autoscaling · Scale-to-zero · Webhook Receiver    │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│                   Cloud Firestore                      │
+│     Inboxes Collection · Captured Events Subcollection │
+│        Resilient fallback for local development        │
+└────────────────────────────────────────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Runtime**: Single containerized Next.js 16 application running on **Google Cloud Run**.
+- **Persistence**: **Cloud Firestore** for storing inbox records and incoming events across container restarts. Includes an in-memory/file resilient fallback for zero-dependency local development and testing.
+- **Safety**: 128 KB payload guardrail, automatic redaction of sensitive authentication tokens & headers (`authorization`, `cookie`, `x-api-key`, etc.), and SHA-256 hashed dashboard owner tokens.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔌 API Endpoints
 
-## Learn More
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/inboxes` | Create a new inbox, returns receiver URL and private owner token. |
+| `GET` | `/api/inboxes/:id` | Get inbox metadata (requires owner token). |
+| `DELETE` | `/api/inboxes/:id` | Remove inbox and associated events (requires owner token). |
+| `GET` | `/api/inboxes/:id/events` | Return captured events (requires owner token, polled every 1.5s). |
+| `DELETE` | `/api/inboxes/:id/events` | Clear events for this inbox (requires owner token). |
+| `POST` | `/api/inboxes/:id/sample` | Trigger a realistic mock webhook (Stripe, GitHub, Shopify, Clerk). |
+| `*` | `/api/hooks/:token` | **Public receiver endpoint**. Accepts any HTTP method (`POST`, `GET`, `PUT`, `PATCH`, `DELETE`), captures body and headers, redacts secrets, and persists the event. |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Local Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# 1. Install dependencies
+npm install
 
-## Deploy on Vercel
+# 2. Run the development server
+npm run dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 3. Open http://localhost:3000 in your browser
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🚢 Deploying to Google Cloud Run
+
+To deploy Payload Peek directly from source to Cloud Run:
+
+```bash
+# Set your Google Cloud project
+gcloud config set project YOUR_PROJECT_ID
+
+# Deploy to Cloud Run
+gcloud run deploy payload-peek \
+  --source . \
+  --region europe-west1 \
+  --allow-unauthenticated \
+  --min-instances 0 \
+  --max-instances 10 \
+  --memory 512Mi \
+  --cpu 1
+```
+
+Once deployment completes, Cloud Run will print the live HTTPS service URL.
+
+---
+
+## 🏆 Product Hunt Launch Submission Package
+
+- **Product Name**: Payload Peek
+- **Tagline**: Catch webhooks. Inspect payloads. Generate TypeScript. (53 chars)
+- **Description**: A live webhook inbox for developers. Inspect HTTP requests, explore JSON payloads, and turn real events into TypeScript interfaces or Zod schemas—all in your browser, with no setup or account required.
+- **Cloud Run Hackathon Description**:
+  > Payload Peek runs as a containerized Next.js application on Google Cloud Run. Cloud Run serves the dashboard and receives incoming webhook events through unique HTTP endpoints, while Cloud Firestore persists request metadata and JSON payloads. Its managed, autoscaling infrastructure lets us accept webhook traffic without managing servers, scaling down when idle and scaling up with demand.
