@@ -1,4 +1,4 @@
-import { SampleWebhookTemplate } from "./types";
+import type { SampleWebhookTemplate } from "./types";
 
 export const SAMPLE_TEMPLATES: SampleWebhookTemplate[] = [
   {
