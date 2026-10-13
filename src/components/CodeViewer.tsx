@@ -143,12 +143,24 @@ export function CodeViewer({
         });
       } else if (lang === "bash") {
         if (line.startsWith("curl") || line.startsWith("  -")) {
-          return (
-            <span key={idx} className="text-slate-300">
+          formattedLine = (
+            <span className="text-slate-300">
               <span className="text-emerald-400 font-bold">{line.slice(0, 4)}</span>
               {line.slice(4)}
             </span>
           );
+        } else {
+          const parts = line.split(/("(?:[^"\\]|\\.)*")/g);
+          formattedLine = parts.map((part, pIdx) => {
+            if (part.startsWith('"')) {
+              return (
+                <span key={pIdx} className="text-emerald-300">
+                  {part}
+                </span>
+              );
+            }
+            return <span key={pIdx}>{part}</span>;
+          });
         }
       }
 
