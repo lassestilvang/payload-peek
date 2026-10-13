@@ -59,6 +59,15 @@ Built for the **Google Cloud Run Takeover & Product Hunt Hackathon**.
 
 ---
 
+## 🌐 Live Production Service
+
+- **Live URL**: [https://payload-peek-793163573178.us-central1.run.app](https://payload-peek-793163573178.us-central1.run.app)
+- **GCP Project**: `payload-peek-run-app`
+- **Region**: `us-central1` (Iowa, USA)
+- **Database**: Cloud Firestore (Native Mode)
+
+---
+
 ## 🚀 Local Development
 
 ```bash
