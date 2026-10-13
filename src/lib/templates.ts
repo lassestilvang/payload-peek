@@ -1,0 +1,195 @@
+import { SampleWebhookTemplate } from "./types";
+
+export const SAMPLE_TEMPLATES: SampleWebhookTemplate[] = [
+  {
+    id: "stripe-checkout",
+    name: "Stripe — checkout.session.completed",
+    provider: "Stripe",
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "stripe-signature": "t=1728864000,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd",
+      "user-agent": "Stripe/1.0 (+https://stripe.com/docs/webhooks)",
+    },
+    payload: {
+      id: "evt_3Pv9xL2eZvKYlo2C01abcdef",
+      object: "event",
+      api_version: "2024-06-20",
+      created: 1728864000,
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_test_a1b2c3d4e5f6g7h8",
+          object: "checkout.session",
+          amount_total: 4900,
+          currency: "usd",
+          customer_email: "dev@example.com",
+          customer_details: {
+            name: "Alex River",
+            email: "dev@example.com",
+            phone: "+1-555-0199",
+            address: {
+              city: "San Francisco",
+              country: "US",
+              line1: "100 Market St",
+              postal_code: "94105",
+              state: "CA",
+            },
+          },
+          payment_status: "paid",
+          status: "complete",
+          metadata: {
+            plan_id: "pro_annual",
+            user_id: "usr_9981",
+          },
+          line_items: [
+            {
+              id: "li_123456",
+              description: "Payload Peek Pro Subscription (Annual)",
+              amount_subtotal: 4900,
+              quantity: 1,
+            },
+          ],
+        },
+      },
+      livemode: false,
+      pending_webhooks: 1,
+    },
+  },
+  {
+    id: "github-push",
+    name: "GitHub — push",
+    provider: "GitHub",
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-github-event": "push",
+      "x-github-delivery": "72d3162e-cc78-11e3-81ab-4c9367dc0958",
+      "user-agent": "GitHub-Hookshot/044aadd",
+    },
+    payload: {
+      ref: "refs/heads/main",
+      before: "6113728f27ae82c7b1a12f659397f263fb217354",
+      after: "0000000000000000000000000000000000000000",
+      repository: {
+        id: 8746291,
+        name: "payload-peek",
+        full_name: "acme/payload-peek",
+        private: false,
+        owner: {
+          name: "acme",
+          email: "dev@acme.inc",
+          login: "acme",
+          avatar_url: "https://github.com/images/error/octocat_happy.gif",
+        },
+        html_url: "https://github.com/acme/payload-peek",
+        description: "Webhook inspector & TypeScript type generator",
+        fork: false,
+        stargazers_count: 142,
+      },
+      pusher: {
+        name: "developer",
+        email: "octocat@github.com",
+      },
+      sender: {
+        login: "octocat",
+        id: 1,
+        site_admin: false,
+      },
+      commits: [
+        {
+          id: "0d1a26e67d8f5eaf1f6ba5c57fc3c7d91ac0fd1c",
+          message: "feat: add instant Zod schema generator for webhooks",
+          timestamp: "2026-10-14T09:00:00Z",
+          author: {
+            name: "Alex Developer",
+            email: "alex@example.com",
+          },
+          added: ["src/lib/zod-generator.ts"],
+          modified: ["src/components/PayloadInspector.tsx"],
+        },
+      ],
+    },
+  },
+  {
+    id: "shopify-order",
+    name: "Shopify — orders/create",
+    provider: "Shopify",
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-shopify-topic": "orders/create",
+      "x-shopify-shop-domain": "mystore.myshopify.com",
+      "user-agent": "Shopify-Webhook/2.0",
+    },
+    payload: {
+      id: 5678912345,
+      name: "#1001",
+      email: "buyer@example.com",
+      created_at: "2026-10-14T08:30:00Z",
+      current_total_price: "129.50",
+      currency: "USD",
+      financial_status: "paid",
+      fulfillment_status: "unfulfilled",
+      customer: {
+        id: 207119551,
+        first_name: "Jane",
+        last_name: "Smith",
+        orders_count: 3,
+        state: "enabled",
+        verified_email: true,
+      },
+      line_items: [
+        {
+          id: 703073554,
+          title: "Cloud Run Developer Hoodie",
+          price: "79.50",
+          quantity: 1,
+          sku: "HOODIE-M-NVY",
+        },
+        {
+          id: 703073555,
+          title: "Google Cloud Sticker Pack",
+          price: "50.00",
+          quantity: 1,
+          sku: "STICKER-GC-01",
+        },
+      ],
+    },
+  },
+  {
+    id: "clerk-user",
+    name: "Clerk — user.created",
+    provider: "Clerk",
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "svix-id": "msg_2p8Xh9mZ8d7",
+      "svix-timestamp": "1728864000",
+      "user-agent": "Svix-Webhooks",
+    },
+    payload: {
+      data: {
+        id: "user_2aBcDeFgHiJkLmNoPqRsTuVw",
+        first_name: "Sarah",
+        last_name: "Connor",
+        email_addresses: [
+          {
+            id: "idn_123456",
+            email_address: "sarah.connor@cyberdyne.io",
+            verification: {
+              status: "verified",
+              strategy: "ticket",
+            },
+          },
+        ],
+        primary_email_address_id: "idn_123456",
+        profile_image_url: "https://img.clerk.com/preview.png",
+        created_at: 1728864000000,
+        updated_at: 1728864000000,
+      },
+      object: "event",
+      type: "user.created",
+    },
+  },
+];
