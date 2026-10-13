@@ -25,6 +25,8 @@ import {
 interface PayloadInspectorProps {
   event: WebhookEvent | null;
   receiverUrl: string;
+  onSendSample?: (templateId: string) => Promise<void>;
+  isSendingSample?: boolean;
 }
 
 type TabType = "typescript" | "zod" | "json" | "raw" | "headers" | "replay";
@@ -32,6 +34,8 @@ type TabType = "typescript" | "zod" | "json" | "raw" | "headers" | "replay";
 export function PayloadInspector({
   event,
   receiverUrl,
+  onSendSample,
+  isSendingSample,
 }: PayloadInspectorProps) {
   const [activeTab, setActiveTab] = useState<TabType>("typescript");
   const [includeNextHandler, setIncludeNextHandler] = useState(false);
@@ -52,6 +56,18 @@ export function PayloadInspector({
         return "bg-slate-700/40 text-slate-300 border-slate-600";
     }
   };
+
+  const defaultCurl = `curl -X POST "${receiverUrl}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "event": "checkout.session.completed",
+    "customer": {
+      "id": "cus_12345",
+      "email": "dev@example.com"
+    },
+    "amount_total": 4900,
+    "currency": "usd"
+  }'`;
 
   // Generate TypeScript code
   const tsCode = useMemo(() => {
@@ -100,17 +116,65 @@ export function PayloadInspector({
 
   if (!event) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#080d19] text-slate-400">
-        <div className="w-16 h-16 rounded-2xl bg-slate-800/40 border border-slate-800 flex items-center justify-center text-slate-400 shadow-inner mb-4">
-          <Code className="w-8 h-8 text-slate-400" />
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#080d19] overflow-y-auto">
+        <div className="max-w-xl w-full flex flex-col items-center text-center">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/10 mb-4">
+            <Terminal className="w-7 h-7 text-emerald-400" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-100">
+            Your Webhook Inbox is Listening
+          </h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-md">
+            Send an HTTP request from your terminal or external service, or click a sample webhook below to inspect the payload and generate typed code in real time.
+          </p>
+
+          <div className="w-full text-left mt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <Terminal className="w-4 h-4 text-emerald-400" />
+                <span>Test with cURL</span>
+              </span>
+              <span className="text-[11px] text-slate-500">Paste in terminal</span>
+            </div>
+            <CodeViewer
+              code={defaultCurl}
+              language="bash"
+              title="Sample cURL Request"
+              badge="Terminal"
+            />
+          </div>
+
+          {onSendSample && (
+            <div className="w-full mt-6 pt-5 border-t border-slate-800/80">
+              <span className="text-xs font-medium text-slate-400 block mb-3">
+                Or trigger a sample webhook with one click:
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={() => onSendSample("stripe-checkout")}
+                  disabled={isSendingSample}
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 hover:text-white transition cursor-pointer disabled:opacity-50"
+                >
+                  ⚡ Stripe Checkout
+                </button>
+                <button
+                  onClick={() => onSendSample("github-push")}
+                  disabled={isSendingSample}
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 hover:text-white transition cursor-pointer disabled:opacity-50"
+                >
+                  🐙 GitHub Push
+                </button>
+                <button
+                  onClick={() => onSendSample("clerk-user")}
+                  disabled={isSendingSample}
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 hover:text-white transition cursor-pointer disabled:opacity-50"
+                >
+                  🔒 Clerk User
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        <h3 className="text-base font-semibold text-slate-200">
-          No request selected
-        </h3>
-        <p className="text-xs text-slate-400 max-w-sm text-center mt-1">
-          Select an incoming request from the list or send a sample webhook to view
-          its payload and generate TypeScript types.
-        </p>
       </div>
     );
   }
