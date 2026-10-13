@@ -129,28 +129,20 @@ export function RequestList({
       </div>
 
       {/* Request Items List */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60">
+      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60 flex flex-col">
         {filteredEvents.length === 0 ? (
-          <div className="p-8 text-center flex flex-col items-center justify-center gap-3 text-slate-400">
-            <div className="w-12 h-12 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-center text-slate-400 shadow-inner">
-              <Database className="w-6 h-6" />
+          <div className="p-8 text-center flex flex-col items-center justify-center gap-2.5 text-slate-500 my-auto">
+            <div className="w-10 h-10 rounded-xl bg-slate-800/40 border border-slate-800 flex items-center justify-center text-slate-400">
+              <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
             </div>
             <div>
-              <p className="font-semibold text-sm text-slate-200">
-                Your inbox is listening
+              <p className="font-semibold text-xs text-slate-300">
+                Waiting for incoming events
               </p>
-              <p className="text-xs text-slate-400 max-w-[220px] mt-1">
-                Send a request with cURL or click below to inspect your first payload.
+              <p className="text-[11px] text-slate-500 max-w-[180px] mt-0.5">
+                HTTP requests sent to this inbox will stream here live.
               </p>
             </div>
-            <button
-              onClick={() => onSendSample("stripe-checkout")}
-              disabled={isSendingSample}
-              className="mt-2 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 cursor-pointer disabled:opacity-50"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>{isSendingSample ? "Sending..." : "Try Stripe Sample"}</span>
-            </button>
           </div>
         ) : (
           filteredEvents.map((ev) => {
